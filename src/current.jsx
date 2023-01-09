@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from "react";
 
-const Current = (() => {
-  const [currentTemperature, setCurrentTemperature] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [error, setError] = useState(null);
 
-  function getCurrentTemperature() {
-    setCurrentTemperature();
+
+const Current = ((props) => {
+  const [currentTemperature, setCurrentTemperature] = useState(null);
+ 
+
+  const fetchTemperature = async () => {
+    const response = await fetch(`${props.host}:${props.port}/temperature/current`);
+    const { temperature, time } = await response.json();
+    setCurrentTemperature(temperature); 
+    props.onHandler(time);   //set current date in app.js
   }
 
   useEffect(() => {
     fetchTemperature();
-  }, [])
+  })
 
-  const fetchTemperature = async () => {
-    const response = await fetch(`http://localhost:5000/temperature/current`)
-    const data = await response.json();
-    const temperature = data.temperature;
-    setCurrentTemperature(temperature);
-  }
+  useEffect(() => {
+      const interval = setInterval(() => {
+        fetchTemperature();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, )
 
   return (
     <div>
-      current temperature is {currentTemperature}
+      <h1>current temperature is: {currentTemperature}</h1>
     </div>
   )
 })
